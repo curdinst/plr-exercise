@@ -19,6 +19,20 @@ run.log_artifact(artifact)
 
 
 def train(args, model, device, train_loader, optimizer, epoch):
+    """
+    Train the model on the training dataset.
+
+    Args:
+        args (argparse.Namespace): Command-line arguments.
+        model (torch.nn.Module): The model to be trained.
+        device (torch.device): The device to run the training on (CPU or GPU).
+        train_loader (torch.utils.data.DataLoader): DataLoader for the training dataset.
+        optimizer (torch.optim.Optimizer): The optimizer used for training.
+        epoch (int): The current epoch number.
+
+    Returns:
+        None
+    """
     model.train()
     for batch_idx, (data, target) in enumerate(train_loader):
 
@@ -44,6 +58,18 @@ def train(args, model, device, train_loader, optimizer, epoch):
 
 
 def test(model, device, test_loader, epoch):
+    """
+    Evaluate the model on the test dataset.
+
+    Args:
+        model (torch.nn.Module): The model to be evaluated.
+        device (torch.device): The device to run the evaluation on (CPU or GPU).
+        test_loader (torch.utils.data.DataLoader): DataLoader for the test dataset.
+        epoch (int): The current epoch number.
+
+    Returns:
+        float: The average test loss.
+    """
     model.eval()
     test_loss = 0
     correct = 0
@@ -68,6 +94,9 @@ def test(model, device, test_loader, epoch):
 
 
 def main():
+    """
+    Main function to train the model on the MNIST dataset.
+    """
     # Training settings
     parser = argparse.ArgumentParser(description="PyTorch MNIST Example")
     parser.add_argument(
@@ -115,6 +144,15 @@ def main():
     study = optuna.create_study(study_name="plr-exercise", storage="sqlite:///plr_exercise.db", load_if_exists=True)
 
     def objective(trial):
+        """
+        Objective function for Optuna hyperparameter optimization.
+
+        Args:
+            trial (optuna.Trial): The current trial.
+
+        Returns:
+            float: The test loss.
+        """
         lr = trial.suggest_loguniform('lr', 1e-5, 1e-1)
         epochs = trial.suggest_int('epochs', 1, 20)
 
