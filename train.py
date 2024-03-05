@@ -2,6 +2,7 @@ from __future__ import print_function
 import argparse
 import torch
 import wandb
+import optuna
 import torch.nn.functional as F
 import torch.optim as optim
 from torchvision import datasets, transforms
@@ -63,6 +64,7 @@ def test(model, device, test_loader, epoch):
             test_loss, correct, len(test_loader.dataset), 100.0 * correct / len(test_loader.dataset)
         )
     )
+    return test_loss
 
 
 def main():
@@ -110,18 +112,36 @@ def main():
     dataset2 = datasets.MNIST("../data", train=False, transform=transform)
     train_loader = torch.utils.data.DataLoader(dataset1, **train_kwargs)
     test_loader = torch.utils.data.DataLoader(dataset2, **test_kwargs)
+    study = optuna.create_study(study_name="plr-exercise", storage="sqlite:///example.db", load_if_exists=True)
 
-    model = Net().to(device)
-    optimizer = optim.Adam(model.parameters(), lr=args.lr)
+    def objective(trial):
+        lr = trial.suggest_loguniform('lr', 1e-5, 1e-1)
+        epochs = trial.suggest_int('epochs', 1, 20)
 
-    scheduler = StepLR(optimizer, step_size=1, gamma=args.gamma)
-    for epoch in range(args.epochs):
-        train(args, model, device, train_loader, optimizer, epoch)
-        test(model, device, test_loader, epoch)
-        scheduler.step()
+        model = Net().to(device)
+        optimizer = optim.Adam(model.parameters(), lr=lr)
+        scheduler = StepLR(optimizer, step_size=1, gamma=args.gamma)
 
-    if args.save_model:
-        torch.save(model.state_dict(), "mnist_cnn.pt")
+        for epoch in range(1, epochs + 1):
+            train(args, model, device, train_loader, optimizer, epoch)
+            test_loss = test(model, device, test_loader, epoch)
+            scheduler.step()
+
+        return test_loss
+    
+    study.optimize(objective, n_trials=100, timeout=600)
+    study.best_params
+
+    # model = Net().to(device)
+    # optimizer = optim.Adam(model.parameters(), lr=args.lr)
+
+    # scheduler = StepLR(optimizer, step_size=1, gamma=args.gamma)
+    # for epoch in range(args.epochs):
+    #     train(args, model, device, train_loader, optimizer, epoch)
+    #     test(model, device, test_loader, epoch)
+    #     scheduler.step()
+
+    
 
     wandb.finish()
 
