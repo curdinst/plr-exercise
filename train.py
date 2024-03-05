@@ -1,12 +1,21 @@
 from __future__ import print_function
 import argparse
 import torch
-# import torch.nn as nn
+import wandb
 import torch.nn.functional as F
 import torch.optim as optim
 from torchvision import datasets, transforms
 from torch.optim.lr_scheduler import StepLR
 from plr_exercise.models.cnn import Net
+
+wandb.login()
+artifact = wandb.Artifact(name="train.py", type="code")
+artifact.add_file("/home/curdin/plr/plr-exercise/train.py")
+# artifact.add_file(local_path=os.path.dirname(os.path.abspath(__file__))+"/train.py", name="train.py")
+run = wandb.init(project="plr-exercise", job_type="train")
+run.use_artifact(artifact)
+run.log_artifact(artifact)
+
 
 def train(args, model, device, train_loader, optimizer, epoch):
     model.train()
@@ -19,6 +28,7 @@ def train(args, model, device, train_loader, optimizer, epoch):
         loss.backward()
         optimizer.step()
         if batch_idx % args.log_interval == 0:
+            wandb.log({"train_loss": loss.item()})
             print(
                 "Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}".format(
                     epoch,
@@ -47,7 +57,7 @@ def test(model, device, test_loader, epoch):
             correct += pred.eq(target.view_as(pred)).sum().item()
 
     test_loss /= len(test_loader.dataset)
-
+    wandb.log({"test_loss": test_loss})
     print(
         "\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n".format(
             test_loss, correct, len(test_loader.dataset), 100.0 * correct / len(test_loader.dataset)
@@ -112,6 +122,8 @@ def main():
 
     if args.save_model:
         torch.save(model.state_dict(), "mnist_cnn.pt")
+
+    wandb.finish()
 
 
 if __name__ == "__main__":

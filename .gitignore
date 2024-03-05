@@ -1,3 +1,4 @@
 /results/*
 /plr_exercise.egg-info/*
+/wandb/*
 __pycache__
