@@ -94,6 +94,10 @@ pip3 install black
 black --line-length 120 ~/git/plr-exercise
 ```
 Now everything looks pretty.
+Create alias for black in the .bashrc file if you want to:
+```shell
+alias black120="black --line-length 120"
+```
 
 
 ### Task 2
