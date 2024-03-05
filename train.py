@@ -112,7 +112,7 @@ def main():
     dataset2 = datasets.MNIST("../data", train=False, transform=transform)
     train_loader = torch.utils.data.DataLoader(dataset1, **train_kwargs)
     test_loader = torch.utils.data.DataLoader(dataset2, **test_kwargs)
-    study = optuna.create_study(study_name="plr-exercise", storage="sqlite:///example.db", load_if_exists=True)
+    study = optuna.create_study(study_name="plr-exercise", storage="sqlite:///plr_exercise.db", load_if_exists=True)
 
     def objective(trial):
         lr = trial.suggest_loguniform('lr', 1e-5, 1e-1)
