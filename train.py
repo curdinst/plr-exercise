@@ -153,8 +153,8 @@ def main():
         Returns:
             float: The test loss.
         """
-        lr = trial.suggest_loguniform('lr', 1e-5, 1e-1)
-        epochs = trial.suggest_int('epochs', 1, 20)
+        lr = trial.suggest_loguniform("lr", 1e-5, 1e-1)
+        epochs = trial.suggest_int("epochs", 1, 20)
 
         model = Net().to(device)
         optimizer = optim.Adam(model.parameters(), lr=lr)
@@ -166,7 +166,7 @@ def main():
             scheduler.step()
 
         return test_loss
-    
+
     study.optimize(objective, n_trials=100, timeout=600)
     study.best_params
 
@@ -178,8 +178,6 @@ def main():
     #     train(args, model, device, train_loader, optimizer, epoch)
     #     test(model, device, test_loader, epoch)
     #     scheduler.step()
-
-    
 
     wandb.finish()
 
