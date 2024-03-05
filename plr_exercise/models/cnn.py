@@ -4,7 +4,27 @@ import torch.nn.functional as F
 
 
 class Net(nn.Module):
+    """
+    A convolutional neural network model.
+
+    Attributes:
+        conv1 (nn.Conv2d): First convolutional layer.
+        conv2 (nn.Conv2d): Second convolutional layer.
+        dropout1 (nn.Dropout): First dropout layer.
+        dropout2 (nn.Dropout): Second dropout layer.
+        fc1 (nn.Linear): First fully connected layer.
+        fc2 (nn.Linear): Second fully connected layer.
+
+    Methods:
+        forward(x): Performs forward pass through the network.
+
+    """
+
     def __init__(self):
+        """
+        Initializes the CNN model.
+
+        """
 
         super(Net, self).__init__()
         self.conv1 = nn.Conv2d(1, 32, 3, 1)
@@ -15,6 +35,17 @@ class Net(nn.Module):
         self.fc2 = nn.Linear(128, 10)
 
     def forward(self, x):
+        """
+        Performs forward pass through the network.
+
+        Args:
+            x (torch.Tensor): Input tensor.
+
+        Returns:
+            output (torch.Tensor): Output tensor after forward pass.
+
+        """
+
         x = self.conv1(x)
         x = F.relu(x)
         x = self.conv2(x)
